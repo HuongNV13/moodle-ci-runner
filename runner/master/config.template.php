@@ -63,15 +63,31 @@ $CFG->behat_prefix = 'b_';
 $CFG->behat_profiles = [
     'default' => [
         'browser' => getenv('BROWSER'),
+        'capabilities' => [
+            'browserName' => getenv('BROWSER'),
+        ],
     ],
 ];
 
+if ('chrome' === getenv('BROWSER')) {
+    $CFG->behat_profiles['default']['capabilities']['chromeOptions'] = [
+        'args' => [
+            'no-sandbox',
+            'headless',
+            'disable-gpu',
+        ],
+    ];
+}
+
 if ('firefox' === getenv('BROWSER')) {
-    $CFG->behat_profiles['default']['capabilities'] = [
-            'extra_capabilities' => [
-                'marionette' => false,
-            ],
-        ];
+    $CFG->behat_profiles['default']['capabilities']['moz:firefoxOptions'] = [
+        'prefs' => [
+            'devtools.console.stdout.content' => true,
+        ],
+        'log' => [
+            'level' => 'trace',
+        ],
+    ];
 }
 
 if (getenv('BEHAT_TOTAL_RUNS') <= 1) {

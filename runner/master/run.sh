@@ -588,6 +588,7 @@ then
   SHMMAP="--shm-size=2g"
 
   HASSELENIUM=1
+  SELVERSION="3.141.59-20201010"
 
   if [ "$BROWSER" == "chrome" ]
   then
@@ -608,7 +609,6 @@ then
       echo "IONICURL" >> "${ENVIROPATH}"
     fi
 
-    SELVERSION="3.141.59-zinc"
     ITER=0
     while [[ ${ITER} -lt ${BEHAT_TOTAL_RUNS} ]]
     do
@@ -629,7 +629,6 @@ then
   elif [ "$BROWSER" == "firefox" ]
   then
 
-    FFSELVERSION="3.141.59_47.0.1"
     ITER=0
     while [[ ${ITER} -lt ${BEHAT_TOTAL_RUNS} ]]
     do
@@ -640,7 +639,7 @@ then
         --detach \
         $SHMMAP \
         -v "${CODEDIR}":/var/www/html \
-        moodlehq/moodle-standalone-firefox:${FFSELVERSION}
+        selenium/standalone-firefox:${SELVERSION}
 
       export "SELENIUMURL_${ITER}"="http://${SELITERNAME}:4444"
       echo "SELENIUMURL_${ITER}" >> "${ENVIROPATH}"

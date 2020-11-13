@@ -60,56 +60,62 @@ $CFG->phpunit_prefix = 't_';
 $CFG->behat_wwwroot   = 'http://' . getenv('WEBSERVER');
 $CFG->behat_dataroot  = '/var/www/behatdata/run';
 $CFG->behat_prefix = 'b_';
+
+if (getenv('BROWSER') === 'firefox') {
+    $browsercaps = [
+        'moz:firefoxOptions' => [
+            'prefs' => [
+                'devtools.console.stdout.content' => true,
+            ],
+            'log' => [
+                'level' => 'trace',
+            ],
+        ],
+    ];
+} else if (getenv('BROWSER') === 'chrome') {
+    $browsercaps = [
+        'chromeOptions' => [
+            'args' => [
+                'no-sandbox',
+            ],
+        ],
+    ];
+}
+
 $CFG->behat_profiles = [
     'default' => [
         'browser' => getenv('BROWSER'),
         'capabilities' => [
             'browserName' => getenv('BROWSER'),
+            'extra_capabilities' => $browsercaps,
         ],
     ],
 ];
 
-if ('chrome' === getenv('BROWSER')) {
-    $CFG->behat_profiles['default']['capabilities']['chromeOptions'] = [
-        'args' => [
-            'no-sandbox',
-            'headless',
-            'disable-gpu',
-        ],
-    ];
-}
-
-if ('firefox' === getenv('BROWSER')) {
-    $CFG->behat_profiles['default']['capabilities']['moz:firefoxOptions'] = [
-        'prefs' => [
-            'devtools.console.stdout.content' => true,
-        ],
-        'log' => [
-            'level' => 'trace',
-        ],
-    ];
-}
-
 if (getenv('BEHAT_TOTAL_RUNS') <= 1) {
     $CFG->behat_profiles['default']['wd_host'] = getenv('SELENIUMURL_0') . '/wd/hub';
+} else {
+    $CFG->behat_parallel_run = [];
+    for ($run = 0; $run < getenv('BEHAT_TOTAL_RUNS'); $run++) {
+        $wdhost = getenv("SELENIUMURL_{$run}") . '/wd/hub';
+        $CFG->behat_parallel_run[$run] = [
+            'wd_host' => $wdhost,
+        ];
+
+        // Copy the profile for re-runs.
+        $CFG->behat_profiles["default{$run}"] = array_merge(
+            $CFG->behat_profiles['default'],
+            [
+                'wd_host' => getenv("SELENIUMURL_{$run}") . '/wd/hub',
+            ]
+        );
+    }
 }
 
 $CFG->behat_faildump_path = '/shared';
 
 if (getenv('BEHAT_TIMING_FILENAME')) {
     define('BEHAT_FEATURE_TIMING_FILE', '/shared/timing.json');
-}
-
-$CFG->behat_parallel_run = [];
-for ($run = 0; $run < getenv('BEHAT_TOTAL_RUNS'); $run++) {
-    $CFG->behat_parallel_run[$run] = [
-        'wd_host' => getenv("SELENIUMURL_{$run}") . '/wd/hub',
-    ];
-
-    // Copy the profile for re-runs.
-    $profile = $CFG->behat_profiles['default'];
-    $profile['wd_host'] = getenv("SELENIUMURL_{$run}") . '/wd/hub';
-    $CFG->behat_profiles["default{$run}"] = $profile;
 }
 
 define('PHPUNIT_LONGTEST', true);

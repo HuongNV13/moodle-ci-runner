@@ -131,7 +131,7 @@ function database_apply_default_dbtag() {
     if [[ "${DBTAG}" == "auto" ]]; then
         case ${DBTYPE} in
             mariadb)
-                DBTAG=10.11 # Because it's the primary lowest supported version and we need it covered by default.
+                DBTAG=11.4 # Because it's the primary lowest supported version and we need it covered by default.
                 ;;
             mysqli)
                 DBTAG=8.4 # Because it's the primary lowest supported version and we need it covered by default.
@@ -143,7 +143,7 @@ function database_apply_default_dbtag() {
                 DBTAG=latest # No pin, right now this is 21c
                 ;;
             pgsql)
-                DBTAG=16 # Because it's the primary lowest supported version and we need it covered by default.
+                DBTAG=17 # Because it's the primary lowest supported version and we need it covered by default.
                 ;;
             *)
                 exit_error "Wrong DBTYPE: ${DBTYPE}. Fix it, or add support for that DBTYPE above"

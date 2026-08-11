@@ -285,8 +285,11 @@ function performance_perftoolcmd() {
     # Note: --updateuserspassword ensures the users' passwords in the database match the
     #       password written to the CSV ($CFG->tool_generator_users_password), which is
     #       critical for JMeter to be able to login as those users.
+    # Note: PUBLICROOT is empty on branches predating the public/ directory layout
+    #       (e.g. MOODLE_405_STABLE), where plugins live in local/ rather than
+    #       public/local/. Unlike admin/cli, plugin paths have no root-level shim.
     cmd=(
-        php public/local/performancetool/generate_test_data.php \
+        php ${PUBLICROOT}local/performancetool/generate_test_data.php \
             --size="${SITESIZE}" \
             --planfilespath="/shared" \
             --bypasscheck \
